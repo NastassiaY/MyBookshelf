@@ -6,6 +6,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -14,6 +15,9 @@ public class BookDAOImpl implements BookDAO{
 
     @Autowired
     private SessionFactory sessionFactory;
+
+    @Value("${author.update_access}")
+    private boolean updateAccess;
 
     public BookDAOImpl(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
@@ -35,11 +39,19 @@ public class BookDAOImpl implements BookDAO{
 
     @Override
     public void update(Book book) {
-        Session session = sessionFactory.openSession();
-        Transaction tx1 = session.beginTransaction();
-        session.merge(book);
-        tx1.commit();
-        session.close();
+        try {
+            if(updateAccess) {
+                Session session = sessionFactory.openSession();
+                Transaction tx1 = session.beginTransaction();
+                session.merge(book);
+                tx1.commit();
+                session.close();
+            } else {
+                throw new IllegalArgumentException();
+            }
+        } catch(IllegalStateException e) {
+            System.out.println("The access to update is closed");
+        }
     }
 
     @Override

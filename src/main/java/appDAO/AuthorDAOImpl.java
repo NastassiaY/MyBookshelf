@@ -1,15 +1,13 @@
 package appDAO;
 
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import model.Author;
-import model.Book;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Repository;
+import org.springframework.beans.factory.annotation.Value;
 
 @Repository
 @PropertySource("classpath:application.properties")
@@ -19,7 +17,7 @@ public class AuthorDAOImpl implements AuthorDAO{
     private SessionFactory sessionFactory;
 
     @Value("${author.update_access}")
-    private String updateAccess;
+    private boolean updateAccess;
 
     public AuthorDAOImpl(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
@@ -41,29 +39,18 @@ public class AuthorDAOImpl implements AuthorDAO{
 
     @Override
     public void update(Author author) {
-        Session session = sessionFactory.openSession();
-        Transaction tx1 = session.beginTransaction();
-        session.merge(author);
-        tx1.commit();
-        session.close();
-    }
-
-    @Transactional
-    public void updateCountry(Author author, String country, int shelfNumber) {
         try {
-            if (updateAccess.equals("ON")) {
-                author.setCountry(country);
+            if(updateAccess) {
                 Session session = sessionFactory.openSession();
+                Transaction tx1 = session.beginTransaction();
                 session.merge(author);
-                for (Book book : author.getBooks()) {
-                    book.setShelfNumber(shelfNumber);
-                    session.merge(book);
-                }
-            } else if (updateAccess.equals("OFF")) {
-                throw new IllegalStateException();
+                tx1.commit();
+                session.close();
+            } else {
+                throw new IllegalArgumentException();
             }
         } catch(IllegalStateException e) {
-            System.out.println("The access to update is denied");
+            System.out.println("The access to update is closed");
         }
     }
 
@@ -75,4 +62,5 @@ public class AuthorDAOImpl implements AuthorDAO{
         tx1.commit();
         session.close();
     }
+
 }

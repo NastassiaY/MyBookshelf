@@ -1,7 +1,10 @@
 package service;
 
+import appDAO.BookDAOImpl;
 import model.Author;
 import appDAO.AuthorDAOImpl;
+import model.Book;
+import org.springframework.transaction.annotation.Transactional;
 
 public class AuthorService {
 
@@ -25,5 +28,16 @@ public class AuthorService {
 
     public void updateAuthor(Author author) {
         authorDAO.update(author);
+    }
+
+    @Transactional
+    public void updateCountry(Author author, String country,
+                              int shelfNumber, BookDAOImpl bookDAO) {
+        author.setCountry(country);
+        authorDAO.update(author);
+        for (Book book : author.getBooks()) {
+            book.setShelfNumber(shelfNumber);
+            bookDAO.save(book);
+        }
     }
 }
