@@ -1,18 +1,21 @@
 package controller;
 
 import model.Author;
-import service.AuthorDataService;
+import service.AuthorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
+@RequestMapping("/authors")
 public class AuthorController {
 
     @Autowired
-    private AuthorDataService authorDataService;
+    private AuthorService authorDataService;
 
-    @GetMapping("/authors/{authorID}")
-    public Author getAuthor(@PathVariable Long authorID) {
+    @GetMapping("/{authorID}")
+    public Optional<Author> getAuthor(@PathVariable Long authorID) {
         return authorDataService.findAuthor(authorID);
     }
 
