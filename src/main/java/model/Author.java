@@ -2,24 +2,24 @@ package model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
+
+@Entity
+@Table(name = "Author")
 
 @Getter
 @Setter
 @NoArgsConstructor
 
-@Entity
-@Table(name = "Author")
 public class Author {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "author_generator")
     @SequenceGenerator(name="author_generator", sequenceName = "author_seq", allocationSize=1)
     @Column(name= "id")
-    private Integer id;
+    private Long id;
 
     @Setter
     @Column(name = "name")
@@ -34,7 +34,7 @@ public class Author {
     public Author(String name) {
         this.name = name;
     }
-    public Author(int id, String name, String country) {
+    public Author(Long id, String name, String country) {
         this.id = id;
         this.name = name;
         this.country = country;

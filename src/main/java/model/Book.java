@@ -3,17 +3,18 @@ package model;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Entity
+@Table(name = "Book")
+
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity
-@Table(name = "Book")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "book_generator")
     @SequenceGenerator(name="book_generator", sequenceName = "book_seq", allocationSize=1)
     @Column(name="id")
-    private Integer id;
+    private Long id;
 
     @Setter
     @Column(name = "title")
@@ -33,7 +34,7 @@ public class Book {
     public Book(String title) {
         this.title = title;
     }
-    public Book(int id, String title, Author author, Genre genre, int shelfNumber) {
+    public Book(Long id, String title, Author author, Genre genre, int shelfNumber) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -46,15 +47,14 @@ public class Book {
         this.author = author;
         author.getBooks().add(this);
     }
+    public void setShelfNumber(int shelfNumber) {
+        this.shelfNumber = shelfNumber;
+    }
 
     public enum Genre {
         Fantasy,
         Mystery,
         Horror,
         Adventure
-    }
-
-    public void setShelfNumber(int shelfNumber) {
-        this.shelfNumber = shelfNumber;
     }
 }
