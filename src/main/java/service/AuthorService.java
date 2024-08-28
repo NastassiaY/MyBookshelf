@@ -1,43 +1,62 @@
 package service;
 
-import appDAO.BookDAOImpl;
+import configuration.ThisIsMyFirstConditionalBean;
+import repository.AuthorRepository;
+import repository.BookRepository;
 import model.Author;
-import appDAO.AuthorDAOImpl;
 import model.Book;
-import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+
+@Service
 public class AuthorService {
 
-    private AuthorDAOImpl authorDAO;
+    @Autowired
+    private AuthorRepository authorRepository;
 
-    public AuthorService(AuthorDAOImpl authorDAO)  {
-        this.authorDAO = authorDAO;
-    }
+    @Autowired
+    private ThisIsMyFirstConditionalBean timfcb;
 
-    public Author getAuthor(int id) {
-        return authorDAO.getByID(id);
-    }
-
+    @Transactional
     public void saveAuthor(Author author) {
-        authorDAO.save(author);
+        authorRepository.save(author);
     }
 
+    public Optional<Author> findAuthor(Long id) {
+        return authorRepository.findById(id);
+    }
+
+    @Transactional
     public void deleteAuthor(Author author) {
-        authorDAO.delete(author);
+        authorRepository.delete(author);
     }
 
+    @Transactional
     public void updateAuthor(Author author) {
-        authorDAO.update(author);
+        try {
+            if (timfcb != null) {
+                authorRepository.save(author);
+            } else {
+                throw new IllegalArgumentException();
+            }
+        } catch(IllegalStateException e) {
+            System.out.println("The access to update is closed");
+            e.printStackTrace();
+        }
     }
 
     @Transactional
     public void updateCountry(Author author, String country,
-                              int shelfNumber, BookDAOImpl bookDAO) {
+                              int shelfNumber, BookRepository bookRepository) {
         author.setCountry(country);
-        authorDAO.update(author);
+        this.updateAuthor(author);
         for (Book book : author.getBooks()) {
             book.setShelfNumber(shelfNumber);
-            bookDAO.save(book);
+            bookRepository.save(book);
         }
     }
 }

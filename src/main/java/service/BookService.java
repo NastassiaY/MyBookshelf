@@ -1,29 +1,48 @@
 package service;
 
+import configuration.ThisIsMyFirstConditionalBean;
 import model.Book;
-import appDAO.BookDAOImpl;
+import repository.BookRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
+@Service
 public class BookService {
 
-    private BookDAOImpl bookDAO;
+    @Autowired
+    private BookRepository bookRepository;
 
-    public BookService(BookDAOImpl bookDAO) {
-        this.bookDAO = bookDAO;
+    @Autowired
+    private ThisIsMyFirstConditionalBean timfcb;
+
+    public Optional<Book> findBook(Long id) {
+        return bookRepository.findById(id);
     }
 
-    public Book getBook(int id) {
-        return bookDAO.getByID(id);
-    }
-
+    @Transactional
     public void saveBook(Book book) {
-        bookDAO.save(book);
+        bookRepository.save(book);
     }
 
+    @Transactional
     public void deleteBook(Book book) {
-        bookDAO.delete(book);
+        bookRepository.delete(book);
     }
 
+    @Transactional
     public void updateBook(Book book) {
-        bookDAO.update(book);
+        try {
+            if (timfcb != null) {
+            bookRepository.save(book);
+            } else {
+                throw new IllegalArgumentException();
+            }
+        } catch(IllegalStateException e) {
+            System.out.println("The access to update is closed");
+            e.printStackTrace();
+        }
     }
 }
