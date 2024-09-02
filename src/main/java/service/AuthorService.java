@@ -22,8 +22,20 @@ public class AuthorService {
     private ThisIsMyFirstConditionalBean timfcb;
 
     @Transactional
-    public void saveAuthor(Author author) {
+    public Author saveAuthor(Author author) {
+        if (author == null) {
+            throw new IllegalArgumentException("The object can't be null");
+        }
+
+        if (findAuthor(author.getId()).isPresent())
+        {
+            throw new IllegalArgumentException
+                    ("The object with Id " + author.getId() + " already exists in database");
+        }
+
         authorRepository.save(author);
+
+        return author;
     }
 
     public Optional<Author> findAuthor(Long id) {
@@ -32,21 +44,27 @@ public class AuthorService {
 
     @Transactional
     public void deleteAuthor(Author author) {
+        if (findAuthor(author.getId()).isEmpty())
+        {
+            throw new IllegalArgumentException
+                    ("No object with Id " + author.getId() + " in database");
+        }
+
         authorRepository.delete(author);
     }
 
     @Transactional
     public void updateAuthor(Author author) {
-        try {
-            if (timfcb != null) {
-                authorRepository.save(author);
-            } else {
-                throw new IllegalArgumentException();
-            }
-        } catch(IllegalStateException e) {
-            System.out.println("The access to update is closed");
-            e.printStackTrace();
+        if (timfcb == null) {
+            return;
         }
+
+        if (findAuthor(author.getId()).isEmpty()) {
+            throw new IllegalArgumentException
+                    ("No object with Id " + author.getId() + " in database");
+        }
+        
+        authorRepository.save(author);
     }
 
     @Transactional
