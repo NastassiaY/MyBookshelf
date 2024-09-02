@@ -44,6 +44,10 @@ public class Author {
         this.country = country;
     }
 
+    public long getId() {
+        return id;
+    }
+
     public void setCountry(String country) {
         this.country = country;
     }
